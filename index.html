@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor-Patient Speech-to-Text</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .buttons {
+      text-align: center;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button.stop {
+      background-color: #f44336;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Doctor-Patient Speech-to-Text</h1>
+    <textarea id="transcript" class="textarea" readonly></textarea>
+    <div class="buttons">
+      <button id="startButton">Start Conversation</button>
+      <button id="stopButton" class="stop" disabled>Stop Conversation</button>
+    </div>
+  </div>
+
+  <script>
+    let isPatientTurn = true;
+    let timer;
+    const transcriptArea = document.getElementById("transcript");
+    const startButton = document.getElementById("startButton");
+    const stopButton = document.getElementById("stopButton");
+
+    function logMessage(role, message) {
+      const timestamp = new Date().toLocaleTimeString();
+      transcriptArea.value += `${timestamp} [${role}]: ${message}\n`;
+      transcriptArea.scrollTop = transcriptArea.scrollHeight;
+    }
+
+    function toggleRoles() {
+      isPatientTurn = !isPatientTurn;
+      const currentRole = isPatientTurn ? "Patient" : "Doctor";
+      logMessage("System", `${currentRole}'s turn to speak.`);
+    }
+
+    function startConversation() {
+      logMessage("System", "Conversation started.");
+      startButton.disabled = true;
+      stopButton.disabled = false;
+      toggleRoles();
+
+      // Automatically switch roles every 5 minutes (300,000 ms)
+      timer = setInterval(() => {
+        toggleRoles();
+      }, 300000);
+    }
+
+    function stopConversation() {
+      logMessage("System", "Conversation stopped.");
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      clearInterval(timer);
+    }
+
+    // Attach event listeners
+    startButton.addEventListener("click", startConversation);
+    stopButton.addEventListener("click", stopConversation);
+
+    // Simulate user input (replace this with actual speech-to-text implementation)
+    document.addEventListener("keydown", (event) => {
+      if (!startButton.disabled) return; // Only allow input when conversation is active
+
+      const currentRole = isPatientTurn ? "Patient" : "Doctor";
+      if (event.key === "Enter") {
+        const message = prompt(`${currentRole}, enter your message:`);
+        if (message) {
+          logMessage(currentRole, message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
